@@ -28,124 +28,24 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Client {
 	
-	private Socket socket;
-	private BufferedReader bufferedReader;
-	private BufferedWriter bufferedWriter;
-	private String username;
-	
-	private static Cipher cipher;
-	private static String key = "1234";
-	
-	public Client(Socket socket, String username) {
-		try {
-			this.socket = socket;
-			this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			this.username = username;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			closeEverything(socket, bufferedReader, bufferedWriter);
-			e.printStackTrace();
-		}
+	public Client() {
+		
 	}
 	
 	public void sendMessage() {
-		try {
-			bufferedWriter.write(username);
-			bufferedWriter.newLine();
-			bufferedWriter.flush();
-			
-			Scanner scanner = new Scanner(System.in);
-			while(socket.isConnected()) {
-				String messageToSend = scanner.nextLine();
-				//String s = new String(encryptMsg(username + ": " + messageToSend), StandardCharsets.UTF_8);
-				bufferedWriter.write(encrypt(key, username + ": " + messageToSend));
-				bufferedWriter.newLine();
-				bufferedWriter.flush();
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			closeEverything(socket, bufferedReader, bufferedWriter);
-			e.printStackTrace();
-		}
+		
 		
 	}
 	
 	public void listenForMessage(){
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				String msgFromGroupChat;
-				
-				while(socket.isConnected()) {
-					try {
-						msgFromGroupChat = bufferedReader.readLine();
-						//byte[] bytes = msgFromGroupChat.getBytes(StandardCharsets.UTF_8);
-						System.out.println(decrypt(key, msgFromGroupChat));
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						closeEverything(socket, bufferedReader, bufferedWriter);
-						e.printStackTrace();
-					}
-				}
-			}
-		}).start();
+		
 	}
 
-	public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
-		try {
-			if(bufferedReader != null) {
-				bufferedReader.close();
-			}
-			if(bufferedWriter != null) {
-				bufferedWriter.close();
-			}
-			if(socket != null) {
-				socket.close();
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void closeEverything() {
+		
 	}
 	
-	 public static String encrypt(final String secret, final String data) {
-
-
-	        byte[] decodedKey = Base64.getDecoder().decode(secret);
-
-	        try {
-	            Cipher cipher = Cipher.getInstance("AES");
-	            // rebuild key using SecretKeySpec
-	            SecretKey originalKey = new SecretKeySpec(Arrays.copyOf(decodedKey, 16), "AES");
-	            cipher.init(Cipher.ENCRYPT_MODE, originalKey);
-	            byte[] cipherText = cipher.doFinal(data.getBytes("UTF-8"));
-	            return Base64.getEncoder().encodeToString(cipherText);
-	        } catch (Exception e) {
-	            throw new RuntimeException(
-	                    "Error occured while encrypting data", e);
-	        }
-
-	    }
-
-	    public static String decrypt(final String secret,
-	            final String encryptedString) {
-
-
-	        byte[] decodedKey = Base64.getDecoder().decode(secret);
-
-	        try {
-	            Cipher cipher = Cipher.getInstance("AES");
-	            // rebuild key using SecretKeySpec
-	            SecretKey originalKey = new SecretKeySpec(Arrays.copyOf(decodedKey, 16), "AES");
-	            cipher.init(Cipher.DECRYPT_MODE, originalKey);
-	            byte[] cipherText = cipher.doFinal(Base64.getDecoder().decode(encryptedString));
-	            return new String(cipherText);
-	        } catch (Exception e) {
-	            throw new RuntimeException(
-	                    "Error occured while decrypting data", e);
-	        }
-	    }
+	 
 	
 	public static void main(String[] args) throws UnknownHostException, IOException, NoSuchPaddingException {
 		// TODO Auto-generated method stub
@@ -153,10 +53,7 @@ public class Client {
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Enter you username for the group chat: ");
 		String username = scanner.nextLine();
-		Socket socket = new Socket("localhost", 3000);
-		Client client = new Client(socket, username);
-		client.listenForMessage();
-		client.sendMessage();
+		
 		
 		
 		
